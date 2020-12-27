@@ -80,7 +80,7 @@
 	
 	<script>
 		// Fiduciales
-		let listaFiduciales = ['./assets/multimedia/minuto0.png', './assets/multimedia/Minuto1.png', './assets/multimedia/Minuto2.png', './assets/multimedia/Minuto3.png', './assets/multimedia/Minuto4.png', './assets/multimedia/Minuto5.png', './assets/multimedia/Minuto6.png', './assets/multimedia/Minuto7.png', './assets/multimedia/Minuto8.png','./assets/multimedia/Minuto9.png'];
+		//let listaFiduciales = ['./assets/multimedia/minuto0.png', './assets/multimedia/Minuto1.png', './assets/multimedia/Minuto2.png', './assets/multimedia/Minuto3.png', './assets/multimedia/Minuto4.png', './assets/multimedia/Minuto5.png', './assets/multimedia/Minuto6.png', './assets/multimedia/Minuto7.png', './assets/multimedia/Minuto8.png','./assets/multimedia/Minuto9.png'];
 		var contadorFiduciales = 0;
 		
 		var video, canvas, context, imageData, detector, posit;
@@ -256,12 +256,20 @@
 		};
 		
 		function createTexture(){
-			var texture = new THREE.Texture(video),
+			var texture = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]),
 			object = new THREE.Object3D(),
 			geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
 			material = new THREE.MeshBasicMaterial( {map: texture, depthTest: false, depthWrite: false} ),
 			mesh = new THREE.Mesh(geometry, material);
 			
+			/*
+			var texture = new THREE.Texture(video),
+			object = new THREE.Object3D(),
+			geometry = new THREE.BoxGeometry(),
+			material = new THREE.MeshBasicMaterial( {map: texture, depthTest: false, depthWrite: false} ),
+			mesh = new THREE.Mesh(geometry, material);
+			*/
+
 			object.position.z = -1;
 			
 			object.add(mesh);
@@ -270,10 +278,15 @@
 		};
 		
 		function createModel(){
-			var object = new THREE.Object3D(),
-			geometry = new THREE.SphereGeometry(0.5, 15, 15, Math.PI),
+			/*var object = new THREE.Object3D(),
+			geometry = new THREE.SphereGeometry(1.5, 15, 15, Math.PI),
 			texture = THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]),
 			material = new THREE.MeshBasicMaterial( {map: texture} ),
+			mesh = new THREE.Mesh(geometry, material);*/
+			var object = new THREE.Object3D(),
+			geometry = new THREE.PlaneGeometry(5,5,5),
+			texture = THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]),
+			material = new THREE.MeshBasicMaterial( {map: texture, depthTest: false, depthWrite: false, transparent: true} ),
 			mesh = new THREE.Mesh(geometry, material);
 			
 			object.add(mesh);
@@ -301,9 +314,9 @@
 				updateObject(model, pose.bestRotation, pose.bestTranslation);
 				
 				
-				step += 0.025;
+				//step += 0.025;
 				
-				model.rotation.z -= step;
+				//model.rotation.z -= step;
 			}
 			
 			texture.children[0].material.map.needsUpdate = true;
