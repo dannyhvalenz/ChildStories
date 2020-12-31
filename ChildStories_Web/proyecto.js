@@ -11,7 +11,7 @@ let listaImagenesBase = ['./assets/multimedia/minuto0.png', './assets/multimedia
 
 
 // Setup inicial
-var temporizador = 60;
+var temporizador = 10;
 var pausaPorFiducial = true;
 let controlPorFiduciales = false;
 let controlPorVoz = true;
@@ -88,10 +88,13 @@ function setupVoz() {
 }
 
 // CONTROL POR BOTONES
-myVideo.addEventListener('click', function (e) { // FUNCIONANDO
-   e.preventDefault();
-   this[this.paused ? this.pause() : this.play()]();
-});
+myVideo.onclick = function(){
+   if (myVideo.paused){
+      myVideo.play();
+   } else {
+      myVideo.pause(); 
+   }
+}
 
 // CONTROL POR FIDUCIALES
 var contadorFiduciales = 0;
@@ -105,8 +108,9 @@ var step = 0.0;
 
 var modelSize = 35.0; //millimeters
 
-myVideo.ontimeupdate = function() {
-   if(Math.floor(myVideo.currentTime) == temporizador){
+myVideo.ontimeupdate = function () {
+   console.log("tiempo = " + myVideo.currentTime);
+   if (Math.floor(myVideo.currentTime) >= temporizador) {
       myVideo.pause();
    }
 };
