@@ -1,4 +1,3 @@
-//import { setupVoz } from './controlVoz.js';
 
 var myVideo = document.getElementById("reproductor");
 var canvas = document.getElementById("canvas");
@@ -8,7 +7,6 @@ var btnStart = document.getElementById("btnStart");
 let listaFiduciales = ['./assets/multimedia/minuto 0-color-figura.png', './assets/multimedia/minuto 1-color-figura.png', './assets/multimedia/minuto 2-color-figura.png', './assets/multimedia/minuto 3-color-figura.png', './assets/multimedia/minuto 4-color-figura.png', './assets/multimedia/minuto 5-color-figura.png', './assets/multimedia/minuto 6-color-figura.png', './assets/multimedia/Minuto7-color.png', './assets/multimedia/minuto 8-color-figura.png', './assets/multimedia/minuto 9-color-figura.png'];
 
 let listaImagenesBase = ['./assets/multimedia/minuto0.png', './assets/multimedia/Minuto1.png', './assets/multimedia/Minuto2.png', './assets/multimedia/Minuto3.png', './assets/multimedia/Minuto4.png', './assets/multimedia/Minuto5.png', './assets/multimedia/Minuto6.png', './assets/multimedia/Minuto7.png', './assets/multimedia/Minuto8.png', './assets/multimedia/Minuto9.png'];
-
 
 // Setup inicial
 var temporizador = 0;
@@ -59,7 +57,7 @@ btnStart.addEventListener('click', function () { // FUNCIONANDO
       document.getElementById("contenedorReproductor").classList.remove('is-four-fifths');
    } else if (controlPorFiduciales == true) {
       document.getElementById("contenedorControlPorFiduales").style.display = "block";
-      //setupFiduciales();
+      setupFiduciales();
       document.getElementById("contenedorReproductor").classList.add('is-four-fifths');
       document.getElementById("contenedorReproductor").classList.remove('is-fullhd');
    }
@@ -105,28 +103,31 @@ var video, canvas, context, imageData, detector, posit;
 var renderer1, renderer2, renderer3;
 var scene1, scene2, scene3, scene4;
 var camera1, camera2, camera3, camera4;
-var plane1, plane2, model, texture;
+var plane1, plane2, model, texture, materialTexture, materialModel;
 var step = 0.0;
+
+var loader = new THREE.TextureLoader();
 
 var modelSize = 35.0; //millimeters
 
 myVideo.ontimeupdate = function () {
-   console.log("tiempo = " + myVideo.currentTime);
+   //console.log("tiempo = " + myVideo.currentTime);
    var currentTime = Math.floor(myVideo.currentTime);
    if (currentTime >= Math.floor(temporizador)) {
+      pausaPorFiducial = true;
+      document.getElementById("canvasFiducial").style.display = "initial";
       myVideo.pause();
    }
 };
 
-function onLoad() {
+function setupFiduciales() {
    video = document.getElementById("video");
    canvas = document.getElementById("canvas");
    context = canvas.getContext("2d");
 
-   // canvas.width = window.innerWidth * .68;
-   // canvas.height = window.innerHeight * .68;
-   canvas.width = parseInt(canvas.style.width);
-   canvas.height = parseInt(canvas.style.height);
+   // width = window.innerWidth * .68;
+   // height = window.innerHeight * .68;
+
 
    if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {};
@@ -162,7 +163,7 @@ function onLoad() {
       });
 
    detector = new AR.Detector();
-   posit = new POS.Posit(modelSize, canvas.width);
+   posit = new POS.Posit(modelSize, 320);
 
    createRenderers();
    createScenes();
@@ -212,37 +213,38 @@ function drawCorners(markers) {
 };
 
 function snapshot() {
-   context.drawImage(video, 0, 0, canvas.width, canvas.height);
-   imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+   context.drawImage(video, 0, 0, 320, 240);
+   imageData = context.getImageData(0, 0, 320, 240);
 };
 
 
 function createRenderers() {
    renderer1 = new THREE.WebGLRenderer();
    renderer1.setClearColor(0xffff00, 1);
-   renderer1.setSize(canvas.width, canvas.height);
+   renderer1.setSize(320, 240);
    scene1 = new THREE.Scene();
-   camera1 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
+   camera1 = new THREE.PerspectiveCamera(40, 320 / 240, 1, 1000);
    scene1.add(camera1);
 
    renderer2 = new THREE.WebGLRenderer();
    renderer2.setClearColor(0xffff00, 1);
-   renderer2.setSize(canvas.width, canvas.height);
+   renderer2.setSize(320, 240);
    scene2 = new THREE.Scene();
-   camera2 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
+   camera2 = new THREE.PerspectiveCamera(40, 320 / 240, 1, 1000);
    scene2.add(camera2);
 
    renderer3 = new THREE.WebGLRenderer();
    renderer3.setClearColor(0xffffff, 1);
-   renderer3.setSize(canvas.width, canvas.height);
+   renderer3.setSize(320, 240);
    document.getElementById("contenedorConFiducial").appendChild(renderer3.domElement);
+   document.getElementById("contenedorConFiducial").firstChild.id = "canvasFiducial";
 
    scene3 = new THREE.Scene();
    camera3 = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5);
    scene3.add(camera3);
 
    scene4 = new THREE.Scene();
-   camera4 = new THREE.PerspectiveCamera(40, canvas.width / canvas.height, 1, 1000);
+   camera4 = new THREE.PerspectiveCamera(40, 320 / 240, 1, 1000);
    scene4.add(camera4);
 };
 
@@ -268,9 +270,11 @@ function createScenes() {
 
    texture = createTexture();
    scene3.add(texture);
+   //texture.needsUpdate = true;
 
    model = createModel();
    scene4.add(model);
+   //model.needsUpdate = true;
 };
 
 function removeScenes() {
@@ -294,41 +298,39 @@ function createPlane() {
 };
 
 function createTexture() {
-   console.log("contadorFiduciales = "+ contadorFiduciales);
-   console.log("listaImagenesBase = "+ listaImagenesBase[contadorFiduciales]);
-   console.log("listaFiduciales = "+ listaFiduciales[contadorFiduciales]);
+   var texture = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]);
+   var object = new THREE.Object3D();
+   var geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0);
+   materialTexture = new THREE.MeshBasicMaterial({
+      map: texture,
+      depthTest: false,
+      depthWrite: false
+   });
+   var mesh = new THREE.Mesh(geometry, materialTexture);
 
-   var texture = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]),
-      object = new THREE.Object3D(),
-      geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
-      material = new THREE.MeshBasicMaterial({
-         map: texture,
-         depthTest: false,
-         depthWrite: false
-      }),
-      mesh = new THREE.Mesh(geometry, material);
-      
    object.position.z = -1;
+
    object.add(mesh);
 
    return object;
 };
 
 function createModel() {
-   var object = new THREE.Object3D(),
-      geometry = new THREE.PlaneGeometry(5, 5, 5),
-      texture = THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]),
-      material = new THREE.MeshBasicMaterial({
-         map: texture,
-         depthTest: false,
-         depthWrite: false,
-         transparent: true
-      }),
-      mesh = new THREE.Mesh(geometry, material);
+   var texture = new THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]);
+   var object = new THREE.Object3D();
+   var geometry = new THREE.PlaneGeometry(5, 5, 5);
+   materialModel = new THREE.MeshBasicMaterial({
+      map: texture,
+      depthTest: false,
+      depthWrite: false,
+      transparent: true
+   });
+   var mesh = new THREE.Mesh(geometry, materialModel);
 
    object.add(mesh);
 
    return object;
+
 };
 
 function actualizarCamaraConFiducial(markers) {
@@ -340,8 +342,8 @@ function actualizarCamaraConFiducial(markers) {
       for (i = 0; i < corners.length; ++i) {
          corner = corners[i];
 
-         corner.x = corner.x - (canvas.width / 2);
-         corner.y = (canvas.height / 2) - corner.y;
+         corner.x = corner.x - (320 / 2);
+         corner.y = (240 / 2) - corner.y;
       }
 
       pose = posit.pose(corners);
@@ -350,12 +352,15 @@ function actualizarCamaraConFiducial(markers) {
       updateObject(plane2, pose.alternativeRotation, pose.alternativeTranslation);
       updateObject(model, pose.bestRotation, pose.bestTranslation);
 
+      updatePose("pose1", pose.bestError, pose.bestRotation, pose.bestTranslation);
+
    }
 
    texture.children[0].material.map.needsUpdate = true;
 };
 
 function updateObject(object, rotation, translation) {
+   console.log("updateObject = " + contadorFiduciales);
    object.scale.x = modelSize;
    object.scale.y = modelSize;
    object.scale.z = modelSize;
@@ -368,27 +373,41 @@ function updateObject(object, rotation, translation) {
    object.position.y = translation[1];
    object.position.z = -translation[2];
    if (pausaPorFiducial == true) {
-      if ((translation[0] | 0) >= -8 && (translation[0] | 0) <= 30 && (translation[1] | 0) >= -18 && (translation[1] | 0) <= 8) {
+      if ((translation[0] | 0) >= -8 && (translation[0] | 0) <= 30) {
          alert("entro");
-         
+
+         document.getElementById("canvasFiducial").style.display = "none";
+
          object.position.x = -10;
          object.position.y = -19;
          object.position.z = 0;
          contadorFiduciales += 1;
-         console.log("contadorFiduciales = "+ contadorFiduciales);
+         console.log("contadorFiduciales = " + contadorFiduciales);
+         console.log("listaImagenesBase = " + listaImagenesBase[contadorFiduciales]);
+         console.log("listaFiduciales = " + listaFiduciales[contadorFiduciales]);
          temporizador += 60;
-         // Ayudan a actualizar todo ----------------------
-         material.needsUpdate = true;
-         texture.needsUpdate = true;
-         texture.children[0].material.needsUpdate = true;
-         // -----------------------------------------------
 
+         materialModel.map = new THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]);
+         materialTexture.map = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]);
 
          myVideo.play();
-         pausaPorFiducial = !pausaPorFiducial;
+         pausaPorFiducial = false;
       }
    }
 
 };
 
-window.onload = onLoad;
+function updatePose(id, error, rotation, translation) {
+   var yaw = -Math.atan2(rotation[0][2], rotation[2][2]);
+   var pitch = -Math.asin(-rotation[1][2]);
+   var roll = Math.atan2(rotation[1][0], rotation[1][1]);
+
+   var d = document.getElementById(id);
+   console.log(" error: " + error +
+      " x: " + (translation[0] | 0) +
+      " y: " + (translation[1] | 0) +
+      " temporizador: " + temporizador + 
+      " pausaPorFiducial: " + pausaPorFiducial );
+};
+
+//window.onload = setupFiduciales;
