@@ -11,7 +11,7 @@ let listaImagenesBase = ['./assets/multimedia/minuto0.png', './assets/multimedia
 
 
 // Setup inicial
-var temporizador = 10;
+var temporizador = 0;
 var pausaPorFiducial = true;
 let controlPorFiduciales = false;
 let controlPorVoz = true;
@@ -88,11 +88,13 @@ function setupVoz() {
 }
 
 // CONTROL POR BOTONES
-myVideo.onclick = function(){
-   if (myVideo.paused){
-      myVideo.play();
-   } else {
-      myVideo.pause(); 
+myVideo.onclick = function () {
+   if (pausaPorFiducial == false) {
+      if (myVideo.paused) {
+         myVideo.play();
+      } else {
+         myVideo.pause();
+      }
    }
 }
 
@@ -110,7 +112,8 @@ var modelSize = 35.0; //millimeters
 
 myVideo.ontimeupdate = function () {
    console.log("tiempo = " + myVideo.currentTime);
-   if (Math.floor(myVideo.currentTime) >= temporizador) {
+   var currentTime = Math.floor(myVideo.currentTime);
+   if (currentTime >= Math.floor(temporizador)) {
       myVideo.pause();
    }
 };
@@ -167,6 +170,7 @@ function onLoad() {
    requestAnimationFrame(tick);
 };
 
+
 function tick() {
    requestAnimationFrame(tick);
 
@@ -174,10 +178,36 @@ function tick() {
       snapshot();
 
       var markers = detector.detect(imageData);
-      //drawCorners(markers);
+      drawCorners(markers);
       actualizarCamaraConFiducial(markers);
 
       render();
+   }
+};
+
+function drawCorners(markers) {
+   var corners, corner, i, j;
+
+   context.lineWidth = 3;
+
+   for (i = 0; i < markers.length; ++i) {
+      corners = markers[i].corners;
+
+      context.strokeStyle = "red";
+      context.beginPath();
+
+      for (j = 0; j < corners.length; ++j) {
+         corner = corners[j];
+         context.moveTo(corner.x, corner.y);
+         corner = corners[(j + 1) % corners.length];
+         context.lineTo(corner.x, corner.y);
+      }
+
+      context.stroke();
+      context.closePath();
+
+      context.strokeStyle = "green";
+      context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
    }
 };
 
@@ -185,6 +215,7 @@ function snapshot() {
    context.drawImage(video, 0, 0, canvas.width, canvas.height);
    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 };
+
 
 function createRenderers() {
    renderer1 = new THREE.WebGLRenderer();
@@ -242,6 +273,13 @@ function createScenes() {
    scene4.add(model);
 };
 
+function removeScenes() {
+   scene1.remove(plane1);
+   scene2.remove(plane2);
+   scene3.remove(texture);
+   scene4.remove(model);
+}
+
 function createPlane() {
    var object = new THREE.Object3D(),
       geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
@@ -256,6 +294,10 @@ function createPlane() {
 };
 
 function createTexture() {
+   console.log("contadorFiduciales = "+ contadorFiduciales);
+   console.log("listaImagenesBase = "+ listaImagenesBase[contadorFiduciales]);
+   console.log("listaFiduciales = "+ listaFiduciales[contadorFiduciales]);
+
    var texture = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]),
       object = new THREE.Object3D(),
       geometry = new THREE.PlaneGeometry(1.0, 1.0, 0.0),
@@ -265,7 +307,7 @@ function createTexture() {
          depthWrite: false
       }),
       mesh = new THREE.Mesh(geometry, material);
-
+      
    object.position.z = -1;
    object.add(mesh);
 
@@ -328,13 +370,21 @@ function updateObject(object, rotation, translation) {
    if (pausaPorFiducial == true) {
       if ((translation[0] | 0) >= -8 && (translation[0] | 0) <= 30 && (translation[1] | 0) >= -18 && (translation[1] | 0) <= 8) {
          alert("entro");
+         
+         object.position.x = -10;
+         object.position.y = -19;
+         object.position.z = 0;
          contadorFiduciales += 1;
+         console.log("contadorFiduciales = "+ contadorFiduciales);
          temporizador += 60;
-         console.log("contadorFiduciales = " + contadorFiduciales);
-         createTexture();
-         createModel();
+         // Ayudan a actualizar todo ----------------------
+         material.needsUpdate = true;
+         texture.needsUpdate = true;
+         texture.children[0].material.needsUpdate = true;
+         // -----------------------------------------------
+
+
          myVideo.play();
-         renderer3.clear();
          pausaPorFiducial = !pausaPorFiducial;
       }
    }
