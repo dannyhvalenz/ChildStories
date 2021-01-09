@@ -1,5 +1,5 @@
 
-var myVideo = document.getElementById("reproductor");
+var reproductor = document.getElementById("reproductor");
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
 var btnStart = document.getElementById("btnStart");
@@ -15,9 +15,10 @@ let controlPorFiduciales = false;
 let controlPorVoz = true;
 window.onload = setupInicial;
 document.getElementById("divReproductor").style.display = "none";
-
+document.getElementById("navbar").style.display = "none";
+document.getElementById("instruccionesFiduciales").style.display = "none";
 function setupInicial() {
-   myVideo.pause();
+   reproductor.pause();
 }
 
 
@@ -45,17 +46,24 @@ function usarFiduciales() { // FUNCIONANDO
 }
 
 btnStart.addEventListener('click', function () { // FUNCIONANDO
+   document.getElementById("navbar").style.display = "block";
    document.getElementById("divReproductor").style.display = "flex";
+   document.getElementById("divMenuPrincipal").style.display = "none";
    console.log("Comenzar");
    console.log("control por voz = " + controlPorVoz);
    console.log("control por fiduciales = " + controlPorFiduciales);
    if (controlPorVoz == true) {
       setupVoz();
+
+      document.getElementById("instruccionesVoz").style.display = "initial";
+      document.getElementById("instruccionesFiduciales").style.display = "none";
       document.getElementById("contenedorControlPorFiduales").style.display = "none";
-      myVideo.src = "./assets/multimedia/ricitos-de-oro.mp4";
+      reproductor.src = "./assets/multimedia/ricitos-de-oro.mp4";
       document.getElementById("contenedorReproductor").classList.add('is-fullhd');
       document.getElementById("contenedorReproductor").classList.remove('is-four-fifths');
    } else if (controlPorFiduciales == true) {
+      document.getElementById("instruccionesVoz").style.display = "none";
+      document.getElementById("instruccionesFiduciales").style.display = "block";
       document.getElementById("contenedorControlPorFiduales").style.display = "block";
       setupFiduciales();
       document.getElementById("contenedorReproductor").classList.add('is-four-fifths');
@@ -66,6 +74,7 @@ btnStart.addEventListener('click', function () { // FUNCIONANDO
 
 // CONTROL POR VOZ - FUNCIONANDO
 function setupVoz() {
+   
    let lang = navigator.language || 'es-MX';
    let speechRec = new p5.SpeechRec(lang, gotSpeech);
 
@@ -77,24 +86,32 @@ function setupVoz() {
       if (speechRec.resultValue) {
          console.log(speechRec.resultString);
          if (speechRec.resultString == "Pausa" || speechRec.resultString == "pausa") {
-            myVideo.pause();
+            reproductor.pause();
          } else if (speechRec.resultString == "Reproducir" || speechRec.resultString == "reproducir" || speechRec.resultString == "Play" || speechRec.resultString == "play") {
-            myVideo.play();
+            reproductor.play();
          }
       }
    }
 }
 
 // CONTROL POR BOTONES
-myVideo.onclick = function () {
-   if (pausaPorFiducial == false) {
-      if (myVideo.paused) {
-         myVideo.play();
-      } else {
-         myVideo.pause();
-      }
-   }
-}
+// myVideo.onclick = function () {
+//    if (controlPorVoz == true){
+//       if (myVideo.paused) {
+//          myVideo.play();
+//       } else {
+//          myVideo.pause();
+//       }
+//       // if (pausaPorFiducial == false) {
+//       //    if (myVideo.paused) {
+//       //       myVideo.play();
+//       //    } else {
+//       //       myVideo.pause();
+//       //    }
+//       // }
+//    } 
+   
+// }
 
 // CONTROL POR FIDUCIALES
 var contadorFiduciales = 0;
@@ -110,14 +127,17 @@ var loader = new THREE.TextureLoader();
 
 var modelSize = 35.0; //millimeters
 
-myVideo.ontimeupdate = function () {
-   //console.log("tiempo = " + myVideo.currentTime);
-   var currentTime = Math.floor(myVideo.currentTime);
-   if (currentTime >= Math.floor(temporizador)) {
-      pausaPorFiducial = true;
-      document.getElementById("canvasFiducial").style.display = "initial";
-      myVideo.pause();
+reproductor.ontimeupdate = function () {
+   //console.log("tiempo = " + reproductor.currentTime);
+   var currentTime = Math.floor(reproductor.currentTime);
+   if (controlPorFiduciales == true){
+      if (currentTime >= Math.floor(temporizador)) {
+         pausaPorFiducial = true;
+         document.getElementById("canvasFiducial").style.display = "initial";
+         reproductor.pause();
+      }
    }
+   
 };
 
 function setupFiduciales() {
@@ -127,7 +147,7 @@ function setupFiduciales() {
 
    // width = window.innerWidth * .68;
    // height = window.innerHeight * .68;
-
+   console.log("altura = " + video.offsetHeight);
 
    if (navigator.mediaDevices === undefined) {
       navigator.mediaDevices = {};
@@ -374,7 +394,7 @@ function updateObject(object, rotation, translation) {
    object.position.z = -translation[2];
    if (pausaPorFiducial == true) {
       if ((translation[0] | 0) >= -8 && (translation[0] | 0) <= 30) {
-         alert("entro");
+         // alert("entro");
 
          document.getElementById("canvasFiducial").style.display = "none";
 
@@ -390,7 +410,7 @@ function updateObject(object, rotation, translation) {
          materialModel.map = new THREE.ImageUtils.loadTexture(listaFiduciales[contadorFiduciales]);
          materialTexture.map = new THREE.ImageUtils.loadTexture(listaImagenesBase[contadorFiduciales]);
 
-         myVideo.play();
+         reproductor.play();
          pausaPorFiducial = false;
       }
    }
