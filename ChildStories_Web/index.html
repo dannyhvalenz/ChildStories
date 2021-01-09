@@ -37,18 +37,19 @@
             Comenzar</button>
 
     </section>
-    <nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
+    <nav id="botones" class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item" style="font-family: 'Amatic SC', cursive; font-weight: bold;" onclick="location.reload()">
+            <a class="navbar-item" style="font-family: 'Amatic SC', cursive; font-weight: bold;"
+                onclick="location.reload()">
                 ChildrenStories
             </a>
         </div>
 
-        <div class="navbar-menu">
+        <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
-                        <a class="button is-primary" onclick="location.reload()">
+                        <a class="button is-info" style="color:white" onclick="location.reload()">
                             <strong>Reinciar</strong>
                         </a>
                     </div>
@@ -56,10 +57,12 @@
             </div>
         </div>
     </nav>
+    
     <section class="container mt-5 mb-0" id="instruccionesFiduciales">
         <h2>Como funciona:</h2>
-        <p style="text-align: justify;">Muestra el fiducial a la cámara y ponlo dentro de la figura mostrada en la parte superior</p>
-            
+        <p style="text-align: justify;">Muestra el <a href="http://diogok.net/js-aruco-markers/index.html">fiducial</a>
+            a la cámara y ponlo dentro de la figura mostrada en la parte superior</p>
+
     </section>
     <section id="divReproductor" class="container columns is-vcentered" style="margin: none;">
         <div class="column" id="contenedorControlPorFiduales">
@@ -73,13 +76,16 @@
         </div>
         <div class="column is-one-fifth" id="instruccionesVoz">
             <h2>Como funciona:</h2>
-            <p style="text-align: justify;">Puedes decir <strong>Reproducir</strong> o <strong>Play</strong> para que el video continue avanzando</p>
-            <p style="text-align: justify;">Puedes decir <strong>Pausa</strong> para que el video pare su reproduccion</p>
-            
+            <p style="text-align: justify;">Puedes decir <strong>Reproducir</strong> o <strong>Play</strong> para que el
+                video continue avanzando</p>
+            <p style="text-align: justify;">Puedes decir <strong>Pausa</strong> para que el video pare su reproduccion
+            </p>
+
         </div>
         <div class="column is-four-fifths" id="contenedorReproductor">
             <video autoplay id="reproductor" class="video-js vjs-theme-city" preload="auto"
-                poster="./assets/multimedia/Minuto0-color.png" data-setup="{}" style="height: 100hv;" onclick="pausarConClick()">
+                poster="./assets/multimedia/Minuto0-color.png" data-setup="{}" style="height: 100hv;"
+                onclick="pausarConClick()">
                 <source src="assets/multimedia/ricitos-de-oro.mp4" type="video/mp4" />
 
             </video>

@@ -15,7 +15,7 @@ let controlPorFiduciales = false;
 let controlPorVoz = true;
 window.onload = setupInicial;
 document.getElementById("divReproductor").style.display = "none";
-document.getElementById("navbar").style.display = "none";
+document.getElementById("botones").style.display = "none";
 document.getElementById("instruccionesFiduciales").style.display = "none";
 function setupInicial() {
    reproductor.pause();
@@ -46,7 +46,7 @@ function usarFiduciales() { // FUNCIONANDO
 }
 
 btnStart.addEventListener('click', function () { // FUNCIONANDO
-   document.getElementById("navbar").style.display = "block";
+   document.getElementById("botones").style.display = "flex";
    document.getElementById("divReproductor").style.display = "flex";
    document.getElementById("divMenuPrincipal").style.display = "none";
    console.log("Comenzar");
