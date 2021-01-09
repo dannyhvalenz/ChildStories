@@ -95,23 +95,24 @@ function setupVoz() {
 }
 
 // CONTROL POR BOTONES
-// myVideo.onclick = function () {
-//    if (controlPorVoz == true){
-//       if (myVideo.paused) {
-//          myVideo.play();
-//       } else {
-//          myVideo.pause();
-//       }
-//       // if (pausaPorFiducial == false) {
-//       //    if (myVideo.paused) {
-//       //       myVideo.play();
-//       //    } else {
-//       //       myVideo.pause();
-//       //    }
-//       // }
-//    } 
+function pausarConClick() {
+   if (controlPorVoz == true){
+      if (reproductor.paused) {
+         reproductor.play();
+      } else {
+         reproductor.pause();
+      }
+   } else {
+      if (pausaPorFiducial == false) {
+         if (reproductor.paused) {
+            reproductor.play();
+         } else {
+            reproductor.pause();
+         }
+      }
+   }
    
-// }
+}
 
 // CONTROL POR FIDUCIALES
 var contadorFiduciales = 0;
