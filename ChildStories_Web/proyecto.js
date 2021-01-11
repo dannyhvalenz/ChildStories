@@ -134,6 +134,7 @@ reproductor.ontimeupdate = function () {
    if (controlPorFiduciales == true){
       if (currentTime >= Math.floor(temporizador)) {
          pausaPorFiducial = true;
+         document.getElementById("completaSilueta").style.display = "initial";
          document.getElementById("canvasFiducial").style.display = "initial";
          reproductor.pause();
       }
@@ -396,7 +397,7 @@ function updateObject(object, rotation, translation) {
    if (pausaPorFiducial == true) {
       if ((translation[0] | 0) >= -8 && (translation[0] | 0) <= 30) {
          // alert("entro");
-
+         document.getElementById("completaSilueta").style.display = "none";
          document.getElementById("canvasFiducial").style.display = "none";
 
          object.position.x = -10;
